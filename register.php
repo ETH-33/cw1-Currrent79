@@ -1,7 +1,7 @@
 <?php
 include 'config.php';
 
-if(isset($_POST['submit'])){
+if (isset($_POST['submit'])) {
    $name = mysqli_real_escape_string($conn, $_POST['name']);
    $email = mysqli_real_escape_string($conn, $_POST['email']);
    $pass = mysqli_real_escape_string($conn, md5($_POST['password']));
@@ -9,22 +9,21 @@ if(isset($_POST['submit'])){
 
    // Validate email format
    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-      $message[] = 'Invalid email format!';
+      $error = 'Invalid email format!';
    } else {
-      $select_users = mysqli_query($conn, "SELECT * FROM `users` WHERE email = '$email' AND password = '$pass'") or die('Query failed');
+      $select_users = mysqli_query($conn, "SELECT * FROM `users` WHERE email = '$email'") or die('Query failed');
 
-      if(mysqli_num_rows($select_users) > 0){
-         $message[] = 'User already exists!';
+      if (mysqli_num_rows($select_users) > 0) {
+         $error = 'User already exists!';
       } else {
          // Validate password length
-         if(strlen($_POST['password']) < 6){
-            $message[] = 'Password should be at least 6 characters long!';
+         if (strlen($_POST['password']) < 6) {
+            $error = 'Password should be at least 6 characters long!';
          } else {
-            if($pass != $cpass){
-               $message[] = 'Confirm password does not match!';
+            if ($pass != $cpass) {
+               $error = 'Confirm password does not match!';
             } else {
                mysqli_query($conn, "INSERT INTO `users`(name, email, password) VALUES('$name', '$email', '$cpass')") or die('Query failed');
-               $message[] = 'Registered successfully!';
                header('location: login.php');
             }
          }
@@ -51,15 +50,13 @@ if(isset($_POST['submit'])){
 <body>
 
 <?php
-if(isset($message)){
-   foreach($message as $msg){
-      echo '
-      <div class="message">
-         <span>'.$msg.'</span>
-         <i class="fas fa-times" onclick="this.parentElement.remove();"></i>
-      </div>
-      ';
-   }
+if (isset($error)) {
+   echo '
+   <div class="message">
+      <span>'.$error.'</span>
+      <i class="fas fa-times" onclick="this.parentElement.remove();"></i>
+   </div>
+   ';
 }
 ?>
 
@@ -77,3 +74,4 @@ if(isset($message)){
 
 </body>
 </html>
+
